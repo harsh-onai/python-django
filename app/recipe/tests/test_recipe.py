@@ -99,3 +99,59 @@ class PrivateTagsApiTest(TestCase):
         serialized_data = RecipeDetailSerializer(recipe)
 
         self.assertEqual(res.data, serialized_data.data)
+
+    def test_create_basic_recipe(self):
+        payload = {
+            'title': 'Maggi',
+            'time_minutes': 2,
+            'price': 300
+        }
+
+        res = self.client.post(RECIPE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(recipe, key))
+
+    def test_create_recipe_ingredient(self):
+        ingredient = sample_ingredient(user=self.user, name='Maggi massala')
+        ingredient1 = sample_ingredient(user=self.user, name='Maggi Seasoning')
+        payload = {
+            'title': 'Maggi',
+            'time_minutes': 2,
+            'price': 300,
+            'ingredients': [ingredient.id, ingredient1.id]
+        }
+
+        res = self.client.post(RECIPE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+        ingredients = recipe.ingredients.all()
+        self.assertEqual(ingredients.count(), 2)
+        self.assertIn(ingredient, ingredients)
+        self.assertIn(ingredient1, ingredients)
+
+    def test_create_recipe_tag(self):
+        tag = sample_tag(user=self.user, name='Maggi massala')
+        tag1 = sample_tag(user=self.user, name='Maggi Seasoning')
+        payload = {
+                'title': 'Maggi',
+                'time_minutes': 2,
+                'price': 300,
+                'tags': [tag.id, tag1.id]
+        }
+
+        res = self.client.post(RECIPE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+        tags = recipe.tags.all()
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag, tags)
+        self.assertIn(tag1, tags)
