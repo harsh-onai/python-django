@@ -19,7 +19,10 @@ class PublicAPITest(TestCase):
 
     def test_login_required(self):
         res = self.client.get(INGREDIENT_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_login_required_create(self):
+        res = self.client.post(INGREDIENT_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
