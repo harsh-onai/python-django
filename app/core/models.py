@@ -46,6 +46,8 @@ class Tag(models.Model):
         on_delete=models.CASCADE,
     )
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 
@@ -57,12 +59,13 @@ class Ingredient(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
 
 
-class Reciepe(models.Model):
+class Recipe(models.Model):
     """Recipe Model"""
     title = models.CharField(max_length=300)
     time_minutes = models.IntegerField(default=5)
@@ -74,6 +77,8 @@ class Reciepe(models.Model):
     )
     ingredients = models.ManyToManyField(Ingredient)
     tags = models.ManyToManyField(Tag)
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.title

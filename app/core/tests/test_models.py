@@ -60,7 +60,7 @@ class ModelTests(TestCase):
     def test_recipe_str(self):
         """__str__ resp"""
 
-        recipe = models.Reciepe.objects.create(
+        recipe = models.Recipe.objects.create(
             users=create_mock_user(),
             title='Burger',
             price=23.28,
