@@ -140,10 +140,10 @@ class PrivateTagsApiTest(TestCase):
         tag = sample_tag(user=self.user, name='Maggi massala')
         tag1 = sample_tag(user=self.user, name='Maggi Seasoning')
         payload = {
-                'title': 'Maggi',
-                'time_minutes': 2,
-                'price': 300,
-                'tags': [tag.id, tag1.id]
+            'title': 'Maggi',
+            'time_minutes': 2,
+            'price': 300,
+            'tags': [tag.id, tag1.id]
         }
 
         res = self.client.post(RECIPE_URL, payload)
@@ -155,3 +155,41 @@ class PrivateTagsApiTest(TestCase):
         self.assertEqual(tags.count(), 2)
         self.assertIn(tag, tags)
         self.assertIn(tag1, tags)
+
+    def test_patch_recipe(self):
+        """Patch recipe"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        recipe.ingredients.add(sample_ingredient(user=self.user))
+        new_tag = sample_tag(user=self.user, name='Maggi Seasoning')
+        payload = {
+            'title': 'Maggi', 'tags': [new_tag.id]
+        }
+        self.client.patch(detail_url(recipe.id), payload)
+
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.title, payload['title'])
+        tags = recipe.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertIn(new_tag, tags)
+
+    def test_put_recipe(self):
+        """Patch recipe"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        recipe.ingredients.add(sample_ingredient(user=self.user))
+        new_tag = sample_tag(user=self.user, name='Maggi Seasoning')
+        payload = {
+            'title': 'Maggi', 'tags': [new_tag.id],
+            'time_minutes': 10, 'price': 200
+        }
+        self.client.put(detail_url(recipe.id), payload)
+
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.title, payload['title'])
+        self.assertEqual(recipe.time_minutes, payload['time_minutes'])
+        tags = recipe.tags.all()
+        ingredient = recipe.ingredients.all()
+        self.assertEqual(len(tags), 1)
+        self.assertEqual(len(ingredient), 0)
+        self.assertIn(new_tag, tags)
