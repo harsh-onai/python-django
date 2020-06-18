@@ -41,8 +41,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs: str):
+        """List if string ids to list of integer"""
+        return [int(str_id) for str_id in qs.split(',')]
+
     def get_queryset(self):
-        return self.queryset.filter(users=self.request.user).order_by('-id')
+        tags = self.request.query_params.get("tags")
+        ingredients = self.request.query_params.get("ingredients")
+
+        queryset = self.queryset
+
+        if tags:
+            tags_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tags_ids)
+
+        if ingredients:
+            ingredients_id = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredients_id)
+
+        return queryset.filter(users=self.request.user).order_by('-id')
 
     def perform_create(self, serializer):
         serializer.save(users=self.request.user)
