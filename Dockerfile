@@ -1,5 +1,5 @@
 FROM python:3.7-alpine
-MAINTAINER OakNorth India Ltd
+MAINTAINER Harsh Pratyush
 
 ENV PYTHONUNBUFFERED 1
 
