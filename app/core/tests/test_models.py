@@ -14,7 +14,7 @@ class ModelTests(TestCase):
 
     def test_create_user_with_email_success(self):
         """Test creating a new user with email"""
-        email = 'harsh.pratyush@oaknorth.ai'
+        email = 'harsh.pratyush@gmail.com'
         password = 'pass123'
         user = get_user_model(). \
             objects.create_user(email=email, password=password)
@@ -23,7 +23,7 @@ class ModelTests(TestCase):
         self.assertTrue(user.check_password(password))
 
     def test_normalize_password(self):
-        email = 'harsh.pratyush@OAKNORTH.AI'
+        email = 'harsh.pratyush@GMAIL.COM'
         password = 'pass123'
         user = get_user_model().objects. \
             create_user(email=email, password=password)
@@ -36,7 +36,7 @@ class ModelTests(TestCase):
 
     def test_create_super_user(self):
         """test for new super user"""
-        user = get_user_model().objects.create_superuser('admin@oaknorth.com',
+        user = get_user_model().objects.create_superuser('admin@gmail.com',
                                                          'test@123')
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)

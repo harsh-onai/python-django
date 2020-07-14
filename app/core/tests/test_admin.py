@@ -8,11 +8,11 @@ class Admin(TestCase):
     def setUp(self) -> None:
         self.client = Client()
         self.admin_user = get_user_model().objects.create_superuser(
-            email='admin@oaknorth.com',
-            password='test@123')
+            email='admin@gmail.com',
+            password='test')
         self.client.force_login(self.admin_user)
         self.user = get_user_model(). \
-            objects.create_user(email='harsh@oaknorth.com',
+            objects.create_user(email='harsh@gmail.com',
                                 password='password123',
                                 name='Harsh Pratyush')
 
