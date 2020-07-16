@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 
 from core.models import Tag, Ingredient, Recipe
@@ -45,3 +46,14 @@ class RecipeImageSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'image')
         read_only_fields = (id,)
+
+
+class RecipeAggregationSerializer(serializers.BaseSerializer):
+
+    def to_representation(self, instance):
+        return {
+            'recipe': instance['title'] if 'title' in instance else None,
+            'noOfIngredients': instance['noOfIngredients'],
+            'noOfTags': instance['noOfTags'],
+            'price': instance['price']
+        }

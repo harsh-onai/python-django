@@ -24,6 +24,13 @@ def detail_url(recipe_id):
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
 
+def aggregate_url(recipe_id):
+    return reverse('recipe:recipe-get-aggregate', args=[recipe_id])
+
+
+# RECIPE_AGG_URL = reverse('recipe:recipe-get-aggregate')
+
+
 def sample_recipe(user, **params):
     """create return sample"""
     defaults = {
@@ -324,3 +331,41 @@ class FilterTest(TestCase):
         self.assertIn(serializer1.data, res.data)
         self.assertNotIn(serializer2.data, res.data)
         self.assertNotIn(serializer3.data, res.data)
+
+    def test_aggregate_data(self):
+        recipe1 = sample_recipe(user=self.user, title="Chicken BTM")
+        recipe2 = sample_recipe(user=self.user, title="Fish Curry")
+        recipe3 = sample_recipe(user=self.user, title="Paneer BTM")
+
+        tag_chicken = sample_tag(user=self.user, name="Non veg")
+        tag_paneer = sample_tag(user=self.user, name="Paneer")
+
+        ingredient_chicken = sample_ingredient(user=self.user, name="Chicken")
+        ingredient_fish = sample_ingredient(user=self.user, name="Fish")
+        ingredient_paneer = sample_ingredient(user=self.user, name="Paneer")
+
+        recipe1.ingredients.add(ingredient_chicken)
+        recipe2.ingredients.add(ingredient_fish)
+        recipe3.ingredients.add(ingredient_paneer)
+
+        recipe1.tags.add(tag_chicken)
+        recipe2.tags.add(tag_chicken)
+        recipe3.tags.add(tag_paneer)
+
+        res = self.client.get(aggregate_url(recipe1.id))
+        self.assertEqual(recipe1.title, res.data['recipe'])
+        self.assertEqual(recipe1.tags.all().count(), res.data['noOfTags'])
+        self.assertEqual(recipe1.ingredients.all().count(),
+                         res.data['noOfIngredients'])
+
+        res = self.client.get(aggregate_url(recipe2.id))
+        self.assertEqual(recipe2.title, res.data['recipe'])
+        self.assertEqual(recipe2.tags.all().count(), res.data['noOfTags'])
+        self.assertEqual(recipe2.ingredients.all().count(),
+                         res.data['noOfIngredients'])
+
+        res = self.client.get(aggregate_url(recipe3.id))
+        self.assertEqual(recipe3.title, res.data['recipe'])
+        self.assertEqual(recipe3.tags.all().count(), res.data['noOfTags'])
+        self.assertEqual(recipe3.ingredients.all().count(),
+                         res.data['noOfIngredients'])

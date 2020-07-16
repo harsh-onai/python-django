@@ -5,6 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from core.models import Tag, Ingredient, Recipe
+from django.db.models import Count
 
 from recipe import serializers
 
@@ -25,7 +26,7 @@ class BaseViewSet(viewsets.GenericViewSet,
         if assigned_only:
             queryset = queryset.filter(recipe__isnull=False)
 
-        return queryset.filter(users=self.request.user).\
+        return queryset.filter(users=self.request.user). \
             order_by('-name').distinct()
 
     def perform_create(self, serializer):
@@ -68,6 +69,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredients_id = self._params_to_ints(ingredients)
             queryset = queryset.filter(ingredients__id__in=ingredients_id)
 
+        if self.action == 'get_aggregate':
+            queryset = queryset.filter(users=self.request.user).annotate(
+                noOfIngredients=Count('ingredients__id'),
+                noOfTags=Count('tags__id')).\
+                values('noOfIngredients', 'noOfTags', 'title', 'price')
+
         return queryset.filter(users=self.request.user).order_by('-id')
 
     def perform_create(self, serializer):
@@ -78,8 +85,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return serializers.RecipeDetailSerializer
         elif self.action == 'upload_image':
             return serializers.RecipeImageSerializer
+        elif self.action == 'get_aggregate':
+            return serializers.RecipeAggregationSerializer
         else:
             return serializers.RecipeSerializer
+
+    @action(methods=['GET'], detail=True, url_path='get-aggregateData')
+    def get_aggregate(self, request, pk=None):
+        recipe = self.get_object()
+        serializer = self.get_serializer(recipe)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):
